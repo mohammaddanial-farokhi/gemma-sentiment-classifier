@@ -73,47 +73,13 @@ The result is a lightweight sentiment classifier that reaches approximately **90
 
 # 🏗 Project Architecture
 
+```text
+IMDB Dataset
+      │
+      ▼
+Preprocessing ───► Tokenization ───► Gemma-2B (QLoRA) ───► LoRA Adapter ───► Prediction
 ```
-
-                    +----------------------+
-                    |      IMDB Dataset    |
-                    +----------+-----------+
-                               |
-                               |
-                               ▼
-                 Dataset Sampling (10%)
-                               |
-                               ▼
-                    Text Tokenization
-                               |
-                               ▼
-                  Dynamic Padding
-                               |
-                               ▼
-             Gemma-2B-IT (4-bit Quantized)
-                               |
-                               ▼
-                LoRA Adapter Training
-                               |
-                               ▼
-                  Fine-tuned Adapter
-                               |
-                               ▼
-                 Save Adapter (.PEFT)
-                               |
-                               ▼
-               Load Adapter for Inference
-                               |
-                               ▼
-               Sentiment Prediction
-
-```
-
 ---
-
-
-
-
 
 # 🧠 Code Organization
 

@@ -241,18 +241,31 @@ Benefits:
 
 ---
 
-# 🎯 LoRA Configuration
+
+# 🧠 LoRA Configuration
+
+Only the attention projection matrices are trained.
 
 | Parameter | Value |
-|------------|--------|
-| Rank (r) | 64 |
+|------------|-------|
+| Rank | 64 |
 | Alpha | 32 |
 | Dropout | 0.05 |
-| Bias | none |
-| Task | Sequence Classification |
-| Target Modules | q_proj, k_proj, v_proj, o_proj |
+| Bias | None |
+| Task Type | Sequence Classification |
 
+Target Modules:
 
+```
+q_proj
+k_proj
+v_proj
+o_proj
+```
+
+This significantly reduces the number of trainable parameters compared to full fine-tuning.
+
+---
 # ⚙️ Training Configuration
 
 The model is fine-tuned using the Hugging Face `Trainer` API with **Parameter-Efficient Fine-Tuning (PEFT)** and **QLoRA**.
@@ -296,30 +309,7 @@ Benefits include:
 - Faster fine-tuning
 - Ability to train on consumer GPUs
 
----
 
-# 🧠 LoRA Configuration
-
-Only the attention projection matrices are trained.
-
-| Parameter | Value |
-|------------|-------|
-| Rank | 64 |
-| Alpha | 32 |
-| Dropout | 0.05 |
-| Bias | None |
-| Task Type | Sequence Classification |
-
-Target Modules:
-
-```
-q_proj
-k_proj
-v_proj
-o_proj
-```
-
-This significantly reduces the number of trainable parameters compared to full fine-tuning.
 
 ---
 

@@ -364,3 +364,441 @@ Benefits:
 | Bias | none |
 | Task | Sequence Classification |
 | Target Modules | q_proj, k_proj, v_proj, o_proj |
+
+
+# ⚙️ Training Configuration
+
+The model is fine-tuned using the Hugging Face `Trainer` API with **Parameter-Efficient Fine-Tuning (PEFT)** and **QLoRA**.
+
+## Hyperparameters
+
+| Parameter | Value |
+|------------|-------|
+| Base Model | Google Gemma-2B-IT |
+| Fine-Tuning Method | LoRA |
+| Quantization | 4-bit NF4 |
+| Optimizer | AdamW (Trainer Default) |
+| Learning Rate | 2e-5 |
+| Epochs | 5 |
+| Train Batch Size | 4 |
+| Evaluation Batch Size | 1 |
+| Weight Decay | 0.01 |
+| Precision | FP16 |
+| Early Stopping | Enabled |
+| Save Strategy | Every Epoch |
+| Evaluation Strategy | Every Epoch |
+| Best Model Selection | Validation Loss |
+
+---
+
+# 🧩 Quantization Configuration
+
+The project uses **BitsAndBytes** to reduce GPU memory usage.
+
+```python
+load_in_4bit = True
+bnb_4bit_quant_type = "nf4"
+bnb_4bit_use_double_quant = True
+bnb_4bit_compute_dtype = torch.bfloat16
+```
+
+Benefits include:
+
+- Reduced GPU memory footprint
+- Faster model loading
+- Faster fine-tuning
+- Ability to train on consumer GPUs
+
+---
+
+# 🧠 LoRA Configuration
+
+Only the attention projection matrices are trained.
+
+| Parameter | Value |
+|------------|-------|
+| Rank | 64 |
+| Alpha | 32 |
+| Dropout | 0.05 |
+| Bias | None |
+| Task Type | Sequence Classification |
+
+Target Modules:
+
+```
+q_proj
+k_proj
+v_proj
+o_proj
+```
+
+This significantly reduces the number of trainable parameters compared to full fine-tuning.
+
+---
+
+# 📈 Evaluation Metrics
+
+Model performance is evaluated using four commonly used classification metrics.
+
+| Metric | Description |
+|---------|-------------|
+| Accuracy | Overall correctness |
+| Precision | Correct positive predictions |
+| Recall | Coverage of actual positives |
+| F1 Score | Balance between Precision and Recall |
+
+These metrics are automatically computed after every evaluation epoch.
+
+---
+
+# 💻 Installation
+
+Clone the repository
+
+```bash
+git clone https://github.com/yourusername/gemma-sentiment-classifier.git
+
+cd gemma-sentiment-classifier
+```
+
+Create a virtual environment
+
+```bash
+python -m venv .venv
+```
+
+Activate environment
+
+Windows
+
+```bash
+.venv\Scripts\activate
+```
+
+Linux / macOS
+
+```bash
+source .venv/bin/activate
+```
+
+Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+# 🔑 HuggingFace Authentication
+
+Create a `.env` file in the project root.
+
+```
+HF_TOKEN=your_huggingface_access_token
+```
+
+The project automatically authenticates using
+
+```
+python-dotenv
+```
+
+---
+
+# ▶️ Running the Project
+
+Simply execute
+
+```bash
+python train.py
+```
+
+The script automatically checks whether a trained LoRA adapter already exists.
+
+```
+Adapter Exists?
+      │
+ ┌────┴────┐
+ │         │
+Yes       No
+ │         │
+ ▼         ▼
+Load     Train
+Adapter   Model
+ │         │
+ └────┬────┘
+      ▼
+ Prediction
+```
+
+This avoids unnecessary retraining.
+
+---
+
+# 🔄 Training Workflow
+
+```
+Load Base Model
+
+↓
+
+Load Dataset
+
+↓
+
+Sample Dataset
+
+↓
+
+Tokenization
+
+↓
+
+Data Collator
+
+↓
+
+Prepare QLoRA
+
+↓
+
+LoRA Configuration
+
+↓
+
+Trainer
+
+↓
+
+Training
+
+↓
+
+Validation
+
+↓
+
+Early Stopping
+
+↓
+
+Save Adapter
+```
+
+---
+
+# 🔍 Inference Workflow
+
+```
+Input Text
+
+↓
+
+Tokenizer
+
+↓
+
+Gemma-2B
+
+↓
+
+LoRA Adapter
+
+↓
+
+Softmax
+
+↓
+
+Positive / Negative
+```
+
+---
+
+# 💬 Example
+
+Input
+
+```text
+The movie was one of the best films I've ever watched.
+```
+
+Output
+
+```text
+Predicted Label : POSITIVE
+
+Probability Positive : 0.996
+
+Probability Negative : 0.004
+```
+
+---
+
+# 📊 Sample Evaluation Output
+
+```
+================================================
+
+EVALUATION ON 10 SAMPLES
+
+================================================
+
+Accuracy : 0.90
+
+================================================
+```
+
+---
+
+# 🏆 Results
+
+Despite using only **10% of the original IMDB dataset**, the model achieves approximately
+
+| Metric | Score |
+|---------|------|
+| Accuracy | ~90% |
+| Precision | High |
+| Recall | High |
+| F1 Score | High |
+
+This demonstrates the effectiveness of QLoRA for resource-efficient fine-tuning.
+
+---
+
+# 💾 Saved Artifacts
+
+After training, the following files are generated.
+
+```
+peft-gemma-imdb/
+
+adapter_config.json
+
+adapter_model.safetensors
+
+tokenizer.json
+
+tokenizer_config.json
+
+special_tokens_map.json
+```
+
+Only the LoRA adapter is saved.
+
+The original Gemma model remains unchanged.
+
+---
+
+# 🚀 Why QLoRA?
+
+Traditional Fine-Tuning
+
+```
+Train
+
+2 Billion Parameters
+```
+
+QLoRA
+
+```
+Freeze Base Model
+
+↓
+
+Train
+
+Only LoRA Layers
+
+↓
+
+Save Adapter
+```
+
+Advantages
+
+- Much lower GPU memory
+- Faster training
+- Smaller checkpoints
+- Better portability
+- Easy deployment
+
+---
+
+# 📚 What I Learned
+
+Through this project I explored:
+
+- Large Language Model fine-tuning
+- Hugging Face ecosystem
+- PEFT
+- QLoRA
+- BitsAndBytes Quantization
+- Dataset preprocessing
+- Evaluation metrics
+- Modular ML project architecture
+- Inference pipeline design
+
+---
+
+# 🔮 Future Improvements
+
+- Multi-class sentiment classification
+- Hyperparameter optimization
+- Full IMDB training
+- Hugging Face Hub deployment
+- Gradio Web Interface
+- Streamlit Dashboard
+- Docker support
+- Model benchmarking
+- ONNX export
+- TensorRT optimization
+
+---
+
+# 📖 References
+
+Google Gemma
+
+PEFT
+
+Transformers
+
+BitsAndBytes
+
+HuggingFace Datasets
+
+---
+
+# 🤝 Contributing
+
+Contributions are welcome.
+
+Feel free to open an Issue or submit a Pull Request.
+
+---
+
+# 📄 License
+
+This project is licensed under the MIT License.
+
+---
+
+# 👨‍💻 Author
+
+**Mohammad Danial Farokhi**
+
+Machine Learning Engineer
+
+Natural Language Processing
+
+Large Language Models
+
+Deep Learning
+
+GitHub:
+
+https://github.com/mohammaddanial-farokhi
+
+If you found this project useful, consider giving it a ⭐.

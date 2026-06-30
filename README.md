@@ -61,44 +61,18 @@ The result is a lightweight sentiment classifier that reaches approximately **90
 
 ---
 
-# ✨ Features
+## ✨ Features
 
-✅ Google Gemma-2B-IT
-
-✅ QLoRA (4-bit Quantization)
-
-✅ PEFT LoRA Adapters
-
-✅ Automatic HuggingFace Authentication
-
-✅ Modular Codebase
-
-✅ Dynamic Dataset Sampling
-
-✅ Tokenization Pipeline
-
-✅ Dynamic Padding
-
-✅ Early Stopping
-
-✅ Automatic Evaluation
-
-✅ Accuracy
-
-✅ Precision
-
-✅ Recall
-
-✅ F1 Score
-
-✅ Automatic Adapter Loading
-
-✅ Single Text Prediction
-
-✅ Batch Evaluation
-
-✅ Easily Extendable
-
+| | |
+|:---|:---|
+| ✅ Google Gemma-2B-IT | ✅ QLoRA (4-bit) |
+| ✅ LoRA Fine-Tuning | ✅ PEFT |
+| ✅ Dynamic Padding | ✅ Early Stopping |
+| ✅ Modular Codebase | ✅ Automatic Evaluation |
+| ✅ Accuracy / F1 | ✅ Precision / Recall |
+| ✅ Adapter Saving | ✅ Adapter Loading |
+| ✅ Single Prediction | ✅ Batch Evaluation |
+| ✅ Easy to Extend | ✅ Consumer GPU Friendly |
 ---
 
 # 🏗 Project Architecture

@@ -1,92 +1,366 @@
-# 🧠 فاین‌تیون مدل Gemma 2 گوگل برای دسته‌بندی احساسات روی دیتاست IMDB
+<!-- ========================================================= -->
+<!--                     HEADER                                -->
+<!-- ========================================================= -->
 
-در این پروژه، یک پايپ‌لاين کامل برای **دسته‌بندی دودویی احساسات** (مثبت/منفی) روی دیتاست نظرات فیلم IMDB پیاده‌سازی شده است. این پايپ‌لاين شامل **پیش‌پردازش داده**، **فاین‌تیون مدل** با استفاده از تکنیک **LoRA** به همراه **کوانتایزاسیون ۴ بیتی**، **ارزیابی کمی** با معیارهای Accuracy، F1، Precision و Recall، و **توابع پیش‌بینی ماژولار** برای پیش‌بینی تکی و دسته‌ای می‌باشد. هدف اصلی، ساخت یک دسته‌بند احساسات سبک، سریع و کارآمد با استفاده از مدل **Gemma-2b-it** گوگل است.
+<div align="center">
 
----
+# 🎬 Gemma Sentiment Classifier
 
-## 🏷️ نشان‌ها (Badges)
-<p align="center">
-  <img src="https://img.shields.io/badge/Python-3.10+-blue?logo=python" />
-  <img src="https://img.shields.io/badge/PyTorch-2.0+-ee4c2c?logo=pytorch" />
-  <img src="https://img.shields.io/badge/HuggingFace-Transformers-yellow?logo=huggingface" />
-  <img src="https://img.shields.io/badge/PEFT-LoRA-success" />
-  <img src="https://img.shields.io/badge/Quantization-4--bit-blueviolet" />
-  <img src="https://img.shields.io/badge/Status-Active-brightgreen" />
-  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" />
-</p>
+### Fine-Tuning Google's Gemma-2B-IT using QLoRA (4-bit Quantization + LoRA) for IMDB Sentiment Analysis
 
----
+<br>
 
-## 📦 دیتاست
+![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
+![PyTorch](https://img.shields.io/badge/PyTorch-DeepLearning-red.svg)
+![Transformers](https://img.shields.io/badge/HuggingFace-Transformers-yellow)
+![PEFT](https://img.shields.io/badge/PEFT-LoRA-green)
+![BitsAndBytes](https://img.shields.io/badge/Quantization-4Bit-orange)
+![Dataset](https://img.shields.io/badge/Dataset-IMDB-purple)
+![Task](https://img.shields.io/badge/Task-Sentiment%20Analysis-success)
+![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
-### 🔹 دیتاست – نظرات فیلم IMDB
-دیتاست **IMDB** شامل ۵۰,۰۰۰ نظر فیلم با برچسب مثبت یا منفی است که به‌طور مستقیم از Hugging Face Datasets بارگذاری می‌شود.
-
-- **تعداد نمونه‌های آموزش:** ۲۵,۰۰۰  
-- **تعداد نمونه‌های تست:** ۲۵,۰۰۰  
-- **تعداد نمونه‌های بدون برچسب:** ۵۰,۰۰۰  
-- **وظیفه:** دسته‌بندی دودویی احساسات (مثبت / منفی)
-
-🔗 [Hugging Face – IMDB](https://huggingface.co/datasets/imdb)
+</div>
 
 ---
 
-## 🚀 مراحل انجام پروژه
+# 📖 Table of Contents
 
-### ۱️⃣ بارگذاری و پیش‌پردازش
-- دیتاست با استفاده از `datasets.load_dataset("imdb")` بارگذاری می‌شود.
-- برای نمونه‌سازی سریع، یک زیرمجموعه‌ی ۱۰ درصدی با استفاده از `shuffle` و `select` ایجاد می‌شود.
-- متن‌ها با استفاده از **توکنایزر Gemma** با `max_length=512` و `truncation=True` توکنایز می‌شوند.
-- از `DataCollatorWithPadding` برای padding پویای بچ‌ها در طول آموزش استفاده می‌شود.
-
-### ۲️⃣ بارگذاری مدل با کوانتایزاسیون ۴ بیتی
-- مدل **Gemma-2b-it** به‌عنوان یک مدل دسته‌بندی دنباله با ۲ برچسب خروجی بارگذاری می‌شود.
-- **کوانتایزاسیون ۴ بیتی** (از طریق `BitsAndBytesConfig`) برای کاهش مصرف حافظه GPU (حدود ۷۵٪ کاهش) اعمال می‌شود.
-- مدل با `device_map="auto"` برای تخصیص خودکار دستگاه بارگذاری می‌شود.
-
-### ۳️⃣ فاین‌تیون با LoRA (تنظیم دقیق به‌صرفه)
-- **LoRA (Low-Rank Adaptation)** روی لایه‌های `q_proj` و `v_proj` اعمال می‌شود.
-- **تنظیمات LoRA:**
-  - رتبه (`r`): ۶۴
-  - آلفا: ۳۲
-  - Dropout: ۰.۰۵
-  - نوع وظیفه: `SEQ_CLS`
-- تنها حدود ۰.۱٪ از پارامترهای مدل قابل آموزش هستند که حافظه و زمان آموزش را به‌طور قابل‌توجهی کاهش می‌دهد.
-- **تنظیمات آموزش:**
-  - نرخ یادگیری: `2e-5`
-  - اندازه دسته: `۴`
-  - تعداد دوره: `۵`
-  - کاهش وزن: `۰.۰۱`
-  - Early stopping با صبر `۱`
-  - دقت مختلط FP16 برای آموزش سریع‌تر
-
-### ۴️⃣ ارزیابی کمی
-مدل فاین‌تیون‌شده روی زیرمجموعه‌ای از دیتاست تست با معیارهای زیر ارزیابی می‌شود:
-- **دقت (Accuracy)**
-- **نمره F1**
-- **دقت (Precision)**
-- **بازخوانی (Recall)**
-
-نتایج روی ۱۰ نمونه‌ی تصادفی تست:
-
-| معیار | امتیاز |
-|-----------|--------|
-| دقت (Accuracy) | ۰.۹۰۰۰ |
-| F1 | ۰.۸۹۹۶ |
-| Precision | ۰.۹۰۰۰ |
-| Recall | ۰.۸۹۹۲ |
-
-> ✅ مدل با تنها ۱۰٪ از داده‌های آموزش و فاین‌تیون LoRA به **دقت حدود ۹۰٪** روی نمونه‌های تست دست‌نخورده دست می‌یابد.
-
-### ۵️⃣ پايپ‌لاين پیش‌بینی ماژولار
-دو تابع پیش‌بینی پیاده‌سازی شده است:
-- `predict_single(text, model, tokenizer, device)`: پیش‌بینی احساسات برای یک متن تکی.
-- `evaluate_on_sample(model, tokenizer, test_dataset, num_samples)`: ارزیابی مدل روی نمونه‌ای از دیتاست تست.
-
-نتایج با استفاده از توابع چاپ اختصاصی، به‌صورت تمیز و فرمت‌شده نمایش داده می‌شوند.
+- Overview
+- Motivation
+- Features
+- Project Architecture
+- Pipeline
+- Project Structure
+- Technologies
+- Dataset
+- Model
+- Quantization
+- LoRA Fine-Tuning
+- Training Configuration
+- Evaluation Metrics
+- Installation
+- Usage
+- Training
+- Inference
+- Results
+- Future Work
+- References
+- License
 
 ---
 
-## 📊 نمونه پیش‌بینی‌ها
+# 🚀 Overview
 
-### مثال پیش‌بینی تکی
+This repository demonstrates an efficient approach to fine-tuning **Google's Gemma-2B-IT** for **binary sentiment classification** using the IMDB movie review dataset.
+
+Instead of updating all **2 billion parameters**, the project leverages **Parameter-Efficient Fine-Tuning (PEFT)** through **LoRA adapters**, combined with **4-bit quantization (QLoRA)**, dramatically reducing GPU memory requirements while preserving strong predictive performance.
+
+The implementation follows a fully modular pipeline that covers:
+
+- Model loading
+- Dataset preparation
+- Tokenization
+- Training
+- Evaluation
+- Adapter saving
+- Adapter loading
+- Inference
+
+---
+
+# 💡 Motivation
+
+Large Language Models have shown outstanding performance across many NLP tasks.
+
+However, full fine-tuning requires:
+
+- Large GPUs
+- Huge memory consumption
+- Long training times
+
+This project explores a much more efficient alternative:
+
+> Fine-tuning only a tiny subset of parameters while keeping the original Gemma model frozen.
+
+The result is a lightweight sentiment classifier that reaches approximately **90% accuracy** while using only **10% of the IMDB training dataset**.
+
+---
+
+# ✨ Features
+
+✅ Google Gemma-2B-IT
+
+✅ QLoRA (4-bit Quantization)
+
+✅ PEFT LoRA Adapters
+
+✅ Automatic HuggingFace Authentication
+
+✅ Modular Codebase
+
+✅ Dynamic Dataset Sampling
+
+✅ Tokenization Pipeline
+
+✅ Dynamic Padding
+
+✅ Early Stopping
+
+✅ Automatic Evaluation
+
+✅ Accuracy
+
+✅ Precision
+
+✅ Recall
+
+✅ F1 Score
+
+✅ Automatic Adapter Loading
+
+✅ Single Text Prediction
+
+✅ Batch Evaluation
+
+✅ Easily Extendable
+
+---
+
+# 🏗 Project Architecture
+
+```
+
+                    +----------------------+
+                    |      IMDB Dataset    |
+                    +----------+-----------+
+                               |
+                               |
+                               ▼
+                 Dataset Sampling (10%)
+                               |
+                               ▼
+                    Text Tokenization
+                               |
+                               ▼
+                  Dynamic Padding
+                               |
+                               ▼
+             Gemma-2B-IT (4-bit Quantized)
+                               |
+                               ▼
+                LoRA Adapter Training
+                               |
+                               ▼
+                  Fine-tuned Adapter
+                               |
+                               ▼
+                 Save Adapter (.PEFT)
+                               |
+                               ▼
+               Load Adapter for Inference
+                               |
+                               ▼
+               Sentiment Prediction
+
+```
+
+---
+
+# ⚙ Project Pipeline
+
+```
+
+Load HF Token
+      │
+      ▼
+
+Load Gemma-2B
+      │
+      ▼
+
+Load IMDB Dataset
+      │
+      ▼
+
+Sample 10% Dataset
+      │
+      ▼
+
+Tokenization
+      │
+      ▼
+
+Data Collator
+      │
+      ▼
+
+Evaluation Metrics
+      │
+      ▼
+
+Prepare Model for QLoRA
+      │
+      ▼
+
+LoRA Configuration
+      │
+      ▼
+
+Trainer
+      │
+      ▼
+
+Training
+      │
+      ▼
+
+Save Adapter
+      │
+      ▼
+
+Load Adapter
+      │
+      ▼
+
+Predict
+
+```
+
+---
+
+# 📂 Project Structure
+
+```
+gemma-sentiment-classifier/
+
+│
+
+├── train.py
+
+├── peft-gemma-imdb/
+
+│      ├── adapter_model.safetensors
+│      ├── adapter_config.json
+│      ├── tokenizer.json
+│      └── ...
+
+├── requirements.txt
+
+├── .env
+
+└── README.md
+
+```
+
+---
+
+# 🧠 Code Organization
+
+The entire implementation is written in a modular manner.
+
+| Module | Responsibility |
+|----------|----------------|
+| `hug_login()` | Authenticate with HuggingFace |
+| `load_model_and_tokenizer()` | Load Gemma-2B model using 4-bit quantization |
+| `load_imdb_dataset()` | Download IMDB dataset |
+| `create_small_dataset()` | Sample only 10% of dataset |
+| `tokenize_dataset()` | Tokenize text reviews |
+| `get_data_collator()` | Dynamic padding |
+| `compute_metrics()` | Accuracy, Precision, Recall, F1 |
+| `lora_tune()` | Fine-tune using LoRA |
+| `load_lora_model()` | Reload trained adapter |
+| `predict_single()` | Predict custom review |
+| `evaluate_on_sample()` | Evaluate random reviews |
+| `print_single_prediction()` | Pretty prediction output |
+| `print_evaluation_summary()` | Evaluation summary |
+
+---
+
+# 🛠 Technologies
+
+| Category | Library |
+|------------|----------------|
+| Language | Python |
+| Deep Learning | PyTorch |
+| LLM | Transformers |
+| PEFT | PEFT |
+| Quantization | BitsAndBytes |
+| Dataset | HuggingFace Datasets |
+| Metrics | Evaluate |
+| Numerical | NumPy |
+| DataFrame | Pandas |
+| Authentication | HuggingFace Hub |
+
+---
+
+# 📊 Dataset
+
+Dataset:
+
+> IMDB Movie Reviews
+
+Binary Classification
+
+Positive
+
+Negative
+
+The original dataset contains **50,000 movie reviews**.
+
+To reduce computational cost, only **10%** of the training split is used.
+
+---
+
+# 🤖 Base Model
+
+Google
+
+Gemma-2B-IT
+
+Task
+
+Sequence Classification
+
+Output Classes
+
+- POSITIVE
+- NEGATIVE
+
+The base model is loaded directly from HuggingFace and converted into a sequence classification model with two output labels.
+
+---
+
+# 🔥 QLoRA
+
+Instead of fine-tuning all model parameters, this project adopts **QLoRA**, which combines:
+
+- 4-bit NormalFloat Quantization (NF4)
+
+- Double Quantization
+
+- LoRA Adapters
+
+Benefits:
+
+✔ Lower VRAM
+
+✔ Faster Training
+
+✔ Lower Storage
+
+✔ High Accuracy
+
+✔ Consumer GPU Friendly
+
+---
+
+# 🎯 LoRA Configuration
+
+| Parameter | Value |
+|------------|--------|
+| Rank (r) | 64 |
+| Alpha | 32 |
+| Dropout | 0.05 |
+| Bias | none |
+| Task | Sequence Classification |
+| Target Modules | q_proj, k_proj, v_proj, o_proj |

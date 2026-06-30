@@ -23,31 +23,6 @@
 
 ---
 
-# 📖 Table of Contents
-
-- Overview
-- Motivation
-- Features
-- Project Architecture
-- Pipeline
-- Project Structure
-- Technologies
-- Dataset
-- Model
-- Quantization
-- LoRA Fine-Tuning
-- Training Configuration
-- Evaluation Metrics
-- Installation
-- Usage
-- Training
-- Inference
-- Results
-- Future Work
-- References
-- License
-
----
 
 # 🚀 Overview
 

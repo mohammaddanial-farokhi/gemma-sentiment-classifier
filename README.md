@@ -188,13 +188,9 @@ The entire implementation is written in a modular manner.
 
 Dataset:
 
-> IMDB Movie Reviews
+> IMDB Movie Reviews : https://huggingface.co/datasets/stanfordnlp/imdb
 
-Binary Classification
-
-Positive
-
-Negative
+Binary Classification: Positive - Negative
 
 The original dataset contains **50,000 movie reviews**.
 

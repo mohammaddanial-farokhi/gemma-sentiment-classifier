@@ -41,23 +41,6 @@ The implementation follows a fully modular pipeline that covers:
 - Adapter loading
 - Inference
 
----
-
-# 💡 Motivation
-
-Large Language Models have shown outstanding performance across many NLP tasks.
-
-However, full fine-tuning requires:
-
-- Large GPUs
-- Huge memory consumption
-- Long training times
-
-This project explores a much more efficient alternative:
-
-> Fine-tuning only a tiny subset of parameters while keeping the original Gemma model frozen.
-
-The result is a lightweight sentiment classifier that reaches approximately **90% accuracy** while using only **10% of the IMDB training dataset**.
 
 ---
 
@@ -71,6 +54,43 @@ The result is a lightweight sentiment classifier that reaches approximately **90
 | HuggingFace Transformers | 10% IMDB Dataset | F1 Score | Modular Pipeline |
 ---
 
+
+
+# 💬 Example
+
+Input
+
+```text
+The movie was one of the best films I've ever watched.
+```
+
+Output
+
+```text
+Predicted Label : POSITIVE
+
+Probability Positive : 0.996
+
+Probability Negative : 0.004
+```
+
+---
+
+# 📊 Sample Evaluation Output
+
+```
+================================================
+
+EVALUATION ON 10 SAMPLES
+
+================================================
+
+Accuracy : 0.90
+
+================================================
+```
+
+---
 # 🏗 Project Architecture
 
 ```text
@@ -318,42 +338,6 @@ python-dotenv
 
 ---
 
-# 💬 Example
-
-Input
-
-```text
-The movie was one of the best films I've ever watched.
-```
-
-Output
-
-```text
-Predicted Label : POSITIVE
-
-Probability Positive : 0.996
-
-Probability Negative : 0.004
-```
-
----
-
-# 📊 Sample Evaluation Output
-
-```
-================================================
-
-EVALUATION ON 10 SAMPLES
-
-================================================
-
-Accuracy : 0.90
-
-================================================
-```
-
----
-
 # 💾 Saved Artifacts
 
 After training, the following files are generated.
@@ -375,22 +359,6 @@ special_tokens_map.json
 Only the LoRA adapter is saved.
 
 The original Gemma model remains unchanged.
-
----
-
-# 📚 What I Learned
-
-Through this project I explored:
-
-- Large Language Model fine-tuning
-- Hugging Face ecosystem
-- PEFT
-- QLoRA
-- BitsAndBytes Quantization
-- Dataset preprocessing
-- Evaluation metrics
-- Modular ML project architecture
-- Inference pipeline design
 
 ---
 
